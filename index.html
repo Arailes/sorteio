@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorteador de nomes</title>
+
+  <style>
+    :root {
+      --primary-color: #e8662d; /* Laranja do botão e N */
+      --primary-hover: #d15822;
+      --bg-color: #f8f9fc;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+      --input-bg: #f9fafb;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-main);
+      /* Um leve pattern para o fundo como na imagem original */
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 450px; /* Mais estreito para simular tela de celular */
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Cabeçalho */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .icon-n {
+      width: 40px;
+      height: 40px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    /* Área de Texto */
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      color: var(--text-main);
+      resize: none;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--primary-color);
+    }
+
+    /* Ações da Lista (Limpar / Participantes) */
+    .list-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .btn-limpar {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      font-size: 14px;
+    }
+    
+    .btn-limpar:hover {
+      color: var(--text-main);
+    }
+
+    .participantes {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      background: #ffedd5;
+      color: var(--primary-color);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Box de Opções */
+    .options-box {
+      background: var(--input-bg);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .option-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .option-row:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Contador numérico */
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .counter button {
+      width: 32px;
+      height: 32px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 18px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .counter input {
+      width: 40px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      height: 32px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Switch Toggle */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Botão Principal */
+    .btn-sortear {
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-sortear:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Área de Resultados (Adaptada do seu código) */
+    .resultado-container {
+      display: none; /* Escondido até sortear */
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 2px dashed var(--border-color);
+      text-align: center;
+    }
+
+    .ordem-final {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .numero {
+      width: 45px;
+      height: 45px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .historico {
+      margin-top: 24px;
+      text-align: left;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .historico ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    
+    <div class="header">
+      <div class="icon-n">N</div>
+      <h1>Sorteador de nomes</h1>
+    </div>
+
+    <div class="input-group">
+      <label>Insira os nomes (um por linha)</label>
+      <textarea id="listaNomes" placeholder="Nome 1&#10;Nome 2&#10;Nome 3..." oninput="atualizarContador()"></textarea>
+    </div>
+
+    <div class="list-actions">
+      <button class="btn-limpar" onclick="limparTudo()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        Limpar lista
+      </button>
+      <div class="participantes">
+        <span class="badge" id="qtdParticipantes">0</span> participantes
+      </div>
+    </div>
+
+    <div class="options-box">
+      <div class="option-row">
+        <span>Nº de Ganhadores</span>
+        <div class="counter">
+          <button onclick="mudarGanhadores(-1)">-</button>
+          <input type="text" id="qtdGanhadores" value="1" readonly>
+          <button onclick="mudarGanhadores(1)">+</button>
+        </div>
+      </div>
+      
+      <div class="option-row">
+        <span>Animação contagem regressiva</span>
+        <label class="switch">
+          <input type="checkbox" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="option-row" style="color: var(--text-muted);">
+        <span style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          Som ativado
+        </span>
+      </div>
+    </div>
+
+    <button class="btn-sortear" onclick="sortearOrdem()">
+      Sortear 
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+
+    <div class="resultado-container" id="resultadoContainer">
+      <h2 style="margin:0; font-size: 18px;">Resultado da Simulação</h2>
+      <div id="ordemFinal" class="ordem-final"></div>
+      
+      <div class="historico">
+        <h3>Histórico</h3>
+        <ul id="historico"></ul>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- LÓGICA DE INTERFACE --- //
+
+    function atualizarContador() {
+      const texto = document.getElementById('listaNomes').value;
+      const linhas = texto.split('\n').filter(linha => linha.trim() !== '');
+      document.getElementById('qtdParticipantes').textContent = linhas.length;
+    }
+
+    function mudarGanhadores(valor) {
+      const input = document.getElementById('qtdGanhadores');
+      let atual = parseInt(input.value);
+      if (atual + valor > 0) {
+        input.value = atual + valor;
+      }
+    }
+
+    // --- SUA LÓGICA ORIGINAL DE SIMULAÇÃO DETERMINÍSTICA --- //
+    
+    const ordemPreConfigurada = [7, 2, 9, 1, 12, 6, 4, 8, 11, 3, 10, 5];
+    let contador = 0;
+
+    function sortearOrdem() {
+      // Exibe a área de resultado que estava escondida
+      document.getElementById("resultadoContainer").style.display = "block";
+
+      contador++;
+
+      const ordemFinal = document.getElementById("ordemFinal");
+      const historico = document.getElementById("historico");
+
+      ordemFinal.innerHTML = "";
+
+      ordemPreConfigurada.forEach(numero => {
+        const elemento = document.createElement("div");
+        elemento.className = "numero";
+        elemento.textContent = numero;
+        ordemFinal.appendChild(elemento);
+      });
+
+      const itemHistorico = document.createElement("li");
+      itemHistorico.textContent = `${contador}º sorteio: ${ordemPreConfigurada.join(" - ")}`;
+
+      historico.prepend(itemHistorico);
+    }
+
+    function limparTudo() {
+      // Limpa os dados do novo layout
+      document.getElementById('listaNomes').value = "";
+      atualizarContador();
+      document.getElementById('qtdGanhadores').value = "1";
+
+      // Limpa os dados da sua lógica
+      document.getElementById("ordemFinal").innerHTML = "";
+      document.getElementById("historico").innerHTML = "";
+      document.getElementById("resultadoContainer").style.display = "none";
+      contador = 0;
+    }
+  </script>
+</body>
+</html>
